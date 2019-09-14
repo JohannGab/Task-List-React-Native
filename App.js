@@ -126,7 +126,7 @@ class App extends React.Component {
       <View style={{ flex: 1}}>
         <Header content= "Liste de tâche" />
         <ScrollView>
-            <View style={style.noTask}>
+            <View style={this.state.taskList.length > 0 ? style.noTask : {alignItems:"center", marginTop: 20} }>
               {this.renderTaskList()}
             </View>
         </ScrollView>
