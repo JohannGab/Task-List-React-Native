@@ -20,20 +20,15 @@ class App extends React.Component {
     isRenamePromptVisible: false,
     idGenerator: 0
   }
-
-  displayMenuTask = taskContent => {
-    console.log('onPress', taskContent);
-    
-  }
-
+  
   toggleMenuTaskVisibility = task => {
-    let currentTask = task;
+    currentTask = task;
     if(this.state.isMenuTaskVisible) {
       currentTask = {};
     }
     this.setState({
-    isMenuTaskVisible:!this.state.isMenuTaskVisible, 
-    currentTask: task
+    isMenuTaskVisible: !this.state.isMenuTaskVisible, 
+    currentTask
   })
   }
 
@@ -43,13 +38,14 @@ class App extends React.Component {
     })
     const list = this.state.taskList;
     list.splice(index, 1);
-    this.setState({taskList: list, currentTask: {} });
-    this.toggleMenuTaskVisibility();
+    this.setState({taskList: list, currentTask: {} }, () => {
+      this.toggleMenuTaskVisibility();
+    });
   }
 
   toggleTaskStatus = () => {
     const updatedTask = this.state.currentTask;
-    updatedTask.status =  this.state.currentTask.status === TASK.donneStatus 
+    updatedTask.status =  this.state.currentTask.status === TASK.doneStatus 
     ? TASK.todoStatus 
     : TASK.doneStatus;
     const index = lodash.findIndex(this.state.taskList,{
@@ -57,11 +53,12 @@ class App extends React.Component {
     })
     const updatedTaskList = this.state.taskList;
     updatedTaskList[index] = updatedTask;
-    this.setState({
-      taskList: updatedTaskList,
-      isMenuTaskVisible: false, 
-      currentTask:{}
-    })
+    this.setState(
+      {
+        taskList: updatedTaskList,
+        isMenuTaskVisible: false, 
+        currentTask:{}
+      })
   }
 
   hideAddPrompt = () => {
@@ -74,10 +71,11 @@ class App extends React.Component {
       content: value,
       status: TASK.todoStatus
     };
-    this.setState({
-      taskList: [...this.state.taskList, newTask], 
-      isAddPrompVisible: false, 
-      idGenerator: this.state.idGenerator +1
+    this.setState(
+      {
+        taskList: [...this.state.taskList, newTask], 
+        isAddPrompVisible: false, 
+        idGenerator: this.state.idGenerator +1
     });
   };
 
@@ -94,7 +92,7 @@ class App extends React.Component {
   }
 
   renameTask = (value)=> {
-    const updatedTask = this.state. currentTask;
+    const updatedTask = this.state.currentTask;
     updatedTask.content = value;
 
     const index = lodash.findIndex(this.state.taskList,{
@@ -142,14 +140,14 @@ class App extends React.Component {
         onSubmitCallBack={this.onAddTask} 
         title={'Ajouter une nouvelle tâche'}
         placeHolder={'ex: Faire du sport'}
-        defaultValue={""}
+        ValueDefaut={""}
         />
         <TextPrompt 
         isVisible={this.state.isRenamePromptVisible} 
         onCancelCallBack={this.hideRenamePrompt} 
         onSubmitCallBack={this.renameTask} 
         title={'Renommer la tâche'}
-        defaultValue={this.state.currentTask.content}
+        ValueDefaut={this.state.currentTask.content}
         />
         <ButtonAddTask onPressCallBack={this.displayAddPrompt} />
       </View>
