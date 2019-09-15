@@ -1,6 +1,6 @@
 import React from 'react';
 import lodash from 'lodash';
-import { View, ScrollView, Text } from 'react-native';
+import { View, ScrollView, Text, AsyncStorage } from 'react-native';
 import Header from './components/header/index';
 import TaskList from './components/task-list';
 import ButtonAddTask from './components/button-add-task';
@@ -9,6 +9,7 @@ import { TASK } from './components/model';
 import TextPrompt from './components/text-prompt';
 import { style } from './style'
 
+const storageKey= 'taskList';
 
 class App extends React.Component {
 
@@ -19,6 +20,21 @@ class App extends React.Component {
     isAddPrompVisible: false,
     isRenamePromptVisible: false,
     idGenerator: 0
+  }
+
+  componentDidMount() {
+    AsyncStorage.getItem(storageKey).then(storedTaskList => {
+      if (storedTaskList) {
+        this.setState({ taskList: JSON.parse(storedTaskList) }, () => {
+          if (this.state.taskList >= 1 ) { // if 0 list corrects the error problem
+          this.setState({
+            idGenerator: this.state.taskList[this.state.taskList.length - 1]
+              .id + 1
+            })
+          }
+        });
+      }
+    });
   }
   
   toggleMenuTaskVisibility = task => {
@@ -40,6 +56,7 @@ class App extends React.Component {
     list.splice(index, 1);
     this.setState({taskList: list, currentTask: {} }, () => {
       this.toggleMenuTaskVisibility();
+      this.saveTaskList();
     });
   }
 
@@ -58,8 +75,10 @@ class App extends React.Component {
         taskList: updatedTaskList,
         isMenuTaskVisible: false, 
         currentTask:{}
-      })
-  }
+      }, () => {
+        this.saveTaskList();
+      });
+  };
 
   hideAddPrompt = () => {
     this.setState({isAddPrompVisible:false});
@@ -76,6 +95,8 @@ class App extends React.Component {
         taskList: [...this.state.taskList, newTask], 
         isAddPrompVisible: false, 
         idGenerator: this.state.idGenerator +1
+    }, () => {
+      this.saveTaskList();
     });
   };
 
@@ -103,7 +124,12 @@ class App extends React.Component {
 
     this.setState({ taskList: updatedTaskList }, () => {
       this.hideRenamePrompt();
+      this.saveTaskList();
     })
+  }
+
+  saveTaskList = () => {
+    AsyncStorage.setItem(storageKey,JSON.stringify(this.state.taskList));
   }
 
   renderTaskList = () => {
